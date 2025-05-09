@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processor</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        pre {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap; /* Ensures text wraps */
+        }
+    </style>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css"/>
+<script src="https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget/autoload.js"></script>
+<body>
+    <div class="container">
+        <h1>File Processor</h1>
+        <input type="file" id="fileInput" multiple>
+        <button id="processButton">Process File</button>
+        <button id="downloadButton">Download Processed File</button>
+        <pre id="output"></pre>
+    </div>
+    <script src="script.js"></script>
+
+    <script>
+        document.getElementById('processButton').addEventListener('click', processFile);
+        document.getElementById('downloadButton').addEventListener('click', downloadFile);
+        
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            const output = document.getElementById('output');
+        
+            output.textContent = ''; // Clear previous output
+        
+            for (let file of files) {
+                const reader = new FileReader();
+        
+                reader.onload = function(e) {
+                    console.log('File content:', e.target.result);
+                    output.textContent += `\nFile name: ${file.name}\nContent:\n${e.target.result}\n`;
+                };
+        
+                reader.onerror = function() {
+                    console.error('Error reading file:', file.name);
+                };
+        
+                reader.readAsText(file); // You can change this to reader.readAsArrayBuffer(file) for binary files
+            }
+        }
+        
+        function downloadFile() {
+            const content = document.getElementById('output').textContent;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'processed_file.cp'; // Change the extension to .cp
+            document.body.appendChild(a); // Append the anchor to the body to ensure it works in all browsers
+            a.click();
+            document.body.removeChild(a); // Clean up and remove the anchor after download
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>

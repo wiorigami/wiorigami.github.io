@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oripa Web Version with Grid Settings Box</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+        #menuBar {
+            background-color: #eee;
+            padding: 10px;
+            display: flex;
+            justify-content: flex-start;
+            border-bottom: 1px solid #ccc;
+        }
+        .menu {
+            margin-right: 20px;
+            position: relative;
+        }
+        .menu > button {
+            background-color: #eee;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .menu-content button {
+            width: 150px;
+            padding: 10px;
+            text-align: left;
+            border: none;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .menu-content button:hover {
+            background-color: #ddd;
+        }
+        .menu:hover .menu-content {
+            display: block;
+        }
+        #mainContainer {
+            display: flex;
+            flex-grow: 1;
+        }
+        #toolbar {
+            width: 250px;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background-color: #f4f4f4;
+        }
+        button, input[type="button"] {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .command-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        #canvasContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+        label {
+            font-size: 14px;
+        }
+        input[type="number"] {
+            width: 50px;
+            margin: 0 5px;
+            padding: 5px;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        #gridSettingsBox {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #ffffff;
+        }
+        #aboutModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            z-index: 10;
+        }
+        #aboutModal button {
+            margin-top: 20px;
+            padding: 5px 10px;
+        }
+        #modalOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+    </style>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css"/>
+<script src="https://cdn.jsdelivr.net/gh/stevenjoezhang/live2d-widget/autoload.js"></script>
+<body>
+    <!-- Menu bar area -->
+    <div id="menuBar">
+        <div class="menu">
+            <button>File</button>
+            <div class="menu-content">
+                <button id="newFile">New</button>
+                <button id="openFile">Open</button>
+                <button id="saveFile">Save</button>
+                <button id="saveAs">Save As</button>
+                <button id="exportDXF">Export DXF</button>
+                <button id="exportOBJ">Export OBJ</button>
+                <button id="exportCP">Export CP</button>
+                <button id="exportSVG">Export SVG</button>
+                <button id="exit">Exit</button>
+            </div>
+        </div>
+        <div class="menu">
+            <button>Edit</button>
+            <div class="menu-content">
+                <button id="copyPaste">Copy and Paste</button>
+                <button id="arrayCopy">Array Copy</button>
+                <button id="circleCopy">Circle Copy</button>
+                <button id="selectAll">Select All</button>
+                <button id="unselectAll">Unselect All</button>
+                <button id="deleteSelected">Delete Selected Lines</button>
+                <button id="undo">Undo</button>
+                <button id="editContour">Edit Contour</button>
+            </div>
+        </div>
+        <div class="menu">
+            <button>Help</button>
+            <div class="menu-content">
+                <button id="about">About</button>
+                <button id="helpContent">Help Content</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="modalOverlay"></div>
+    <div id="aboutModal">
+        <p><strong>ORIPA: Origami Pattern Editor</strong></p>
+        <p>(c) 2005-2009 Jun Mitani</p>
+        <p>http://mitani.cs.tsukuba.ac.jp/</p>
+        <p>This program comes with ABSOLUTELY NO WARRANTY;<br>
+           This is free software, and you are welcome to redistribute it;<br>
+           For details check: http://www.gnu.org/licenses/gpl.html</p>
+        <button id="closeAbout">OK</button>
+    </div>
+
+    <!-- Main container with toolbar and canvas -->
+    <div id="mainContainer">
+        <div id="toolbar">
+            <div class="radio-group">
+                <label>Command (1...9)</label>
+                <div>
+                    <input type="radio" name="command" id="inputLine" checked>
+                    <label for="inputLine">Input Line</label>
+                </div>
+                <div>
+                    <input type="radio" name="command" id="select">
+                    <label for="select">Select</label>
+                </div>
+                <div>
+                    <input type="radio" name="command" id="deleteLine">
+                    <label for="deleteLine">Delete Line</label>
+                </div>
+                <div>
+                    <input type="radio" name="command" id="alterLineType">
+                    <label for="alterLineType">Alter Line Type</label>
+                </div>
+                <div>
+                    <input type="radio" name="command" id="addVertex">
+                    <label for="addVertex">Add Vertex</label>
+                </div>
+                <div>
+                    <input type="radio" name="command" id="deleteVertex">
+                    <label for="deleteVertex">Delete Vertex</label>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="gridSettingsBox">
+                <label>Grid Settings</label>
+                <div>
+                    <input type="checkbox" id="showGrid" checked> Show Grid
+                </div>
+                <div>
+                    <label for="divNum">Div Num:</label>
+                    <input type="number" id="divNum" value="4" min="1" max="128">
+                    <input type="button" id="setGrid" value="Set">
+                </div>
+                <div>
+                    <input type="button" id="gridZoomIn" value="x2">
+                    <input type="button" id="gridZoomOut" value="x1/2">
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+                <label>Display</label>
+                <br>
+                <input type="checkbox" id="showMVLines" checked> Show M/V Lines
+                <br>
+                <input type="checkbox" id="showAuxLines"> Show Aux Lines
+                <br>
+                <input type="checkbox" id="showVertices"> Show Vertices
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+                <button id="checkWindow">Check Window</button>
+                <button id="fold">Fold...</button>
+                <input type="checkbox" id="fullEstimation"> Full Estimation
+            </div>
+        </div>
+
+        <!-- Canvas area for drawing the crease pattern -->
+        <div id="canvasContainer">
+            <canvas id="creasePatternCanvas" width="800" height="800"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('creasePatternCanvas');
+        const ctx = canvas.getContext('2d');
+        let showGrid = true;
+        let gridDivisions = 4;
+
+        // Draw grid based on division number
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (showGrid) {
+                const step = canvas.width / gridDivisions;
+                ctx.strokeStyle = '#ddd';
+                for (let x = 0; x <= canvas.width; x += step) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y <= canvas.height; y += step) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Toggle grid visibility
+        document.getElementById('showGrid').addEventListener('change', function() {
+            showGrid = this.checked;
+            drawGrid();
+        });
+
+        // Set grid divisions
+        document.getElementById('setGrid').addEventListener('click', function() {
+            gridDivisions = Math.min(128, parseInt(document.getElementById('divNum').value));
+            document.getElementById('divNum').value = gridDivisions;
+            drawGrid();
+        });
+
+        // Zoom in/out grid
+        document.getElementById('gridZoomIn').addEventListener('click', function() {
+            gridDivisions = Math.min(128, gridDivisions * 2);
+            document.getElementById('div
