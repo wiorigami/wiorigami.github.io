@@ -10,8 +10,9 @@ tags:
   - Mac
 ---
 # 在Mac上使用TreeMaker
-
 近期，折纸大师 Robert Lang 在他的 [官网](https://langorigami.com/) 上发布了 [最新 TreeMaker 工具](https://langorigami.com/article/treemaker/)。本教程将指导您如何在 macOS 上安装和使用这款工具。
+
+<!--more-->
 
 ## 更新信息
 
@@ -32,7 +33,7 @@ Vish Vishvanath 已成功让 TreeMaker 在 **macOS Sonoma** 上运行！
 
 - [treemaker.zip 下载链接](https://github.com/vishvish/treemaker/releases/download/v5.1.1M-beta/TreeMaker.zip)
 
-您也可以直接
+您也可以直接  
 [TreeMaker.zip](https://github.com/user-attachments/files/19907649/TreeMaker.zip)下载
 
 ### 2. 解压安装包
@@ -49,7 +50,7 @@ Vish Vishvanath 已成功让 TreeMaker 在 **macOS Sonoma** 上运行！
 
 ### 4. 如无法打开应用，解决办法如下：
 
-1. 打开 [Terminal 终端](https://support.apple.com/zh-cn/guide/terminal/welcome/mac)：
+1. 打开 [Terminal 终端](https://support.apple.com/zh-cn/guide/terminal/welcome/mac)
 
    ![Terminal 图标](https://help.apple.com/assets/65DFB7A79DFEC61A7A0517AC/65DFB7A793CD15C0410BA37D/zh_CN/d94aa1c4979b25e9ffbda97fcbae219a.png)
 
@@ -59,12 +60,12 @@ Vish Vishvanath 已成功让 TreeMaker 在 **macOS Sonoma** 上运行！
    sudo xattr -d com.apple.quarantine 
    ```
 
-3. 然后，将 `treemaker.app` 文件拖入 Terminal 窗口中：
+3. 将 `treemaker.app` 文件拖入 Terminal 窗口中，然后按下回车键：
 
    ![](https://www.zhezhixueyuan.com/data/attachment/album/202503/18/195248n3nkaaz7q737bsq7.png)  
    ![](https://www.zhezhixueyuan.com/data/attachment/album/202503/18/195249nl1ggpu91vvo0opg.png)
 
-4. 按下回车键，系统会提示输入密码（输入时不会显示字符，属正常情况）：
+4. 系统提示输入密码时，请直接输入（不会显示字符是正常的）：
 
    ![](https://www.zhezhixueyuan.com/data/attachment/album/202503/18/195500o60262jxq6q2zbr3.png)
 
